@@ -29,6 +29,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_it.h"
+#include "usart_printf.h"
 #include "systick.h"
 
 
@@ -140,6 +141,29 @@ void SysTick_Handler(void)
 {
 	SystemNum ++;
 	
+}
+
+
+void USART1_IRQHandler(void)
+{
+	
+  /* USART in Receiver mode */
+  if (USART_GetITStatus(USART1, USART_IT_RXNE) == SET)
+  {
+		USART_ITConfig(USART1, USART_IT_RXNE, DISABLE);
+    if (RxIndex < BUFFERSIZE)
+    {
+      /* Receive Transaction data */
+      RxBuffer[RxIndex++] = USART_ReceiveData(USART1);
+			USART_ITConfig(USART1, USART_IT_RXNE , ENABLE);	
+    }
+    else
+    {
+      /* Disable the Rx buffer not empty interrupt */
+      USART_ITConfig(USART1, USART_IT_RXNE, DISABLE);
+    }
+  }
+ 
 }
 
 /******************************************************************************/
